@@ -1,0 +1,7 @@
+module WorkoutChart
+linktarget WorkoutChart
+plugin WorkoutChart
+classname WorkoutChart
+typeinfo WorkoutChart.qmltypes
+depends QtQuick
+prefer :/qt/qml/WorkoutChart/
