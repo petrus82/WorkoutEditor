@@ -460,7 +460,7 @@ namespace WORKOUT_CHART {
     }
 
     void WorkoutChart::onFromChanged() {
-        m_activeSelection.interval->setFrom(m_from);
+        m_activeSelection.interval->setFrom(getFrom());
     }
 
     void WorkoutChart::onOkClicked() {

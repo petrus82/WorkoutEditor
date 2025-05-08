@@ -2,15 +2,11 @@
 #include <memory>
 
 #include <QObject>
-//#include <QQmlEngine>
-//#include <QQmlContext>
 #include <QtQuick/QQuickPaintedItem>
 #include <QColor>
 #include <QPainter>
 #include <QList>
 #include <QAbstractListModel>
-#include <qabstractaxis.h>
-#include <QValueAxis>
 #include <QtQmlIntegration/qqmlintegration.h>
 
 namespace WORKOUT_CHART {
@@ -295,7 +291,6 @@ Q_NAMESPACE
         WorkoutChart(QQuickItem *parent = nullptr)
         {
             QQuickPaintedItem::setAcceptedMouseButtons(Qt::LeftButton);
-            m_xAxis->setAlignment(Qt::AlignBottom);
         }
         uint getFileType() const {return static_cast<uint>(m_fileType);}
         void setFileType(uint fileTypeIndex) {
@@ -401,15 +396,29 @@ Q_NAMESPACE
             setActiveStep(event->position().x());
             emit intervalClicked(m_oldSelection.interval, m_oldSelection.step);
         }
-        uint getRepeats () const {return m_repeats;}
+        uint getRepeats () const {
+            if (m_activeSelection.interval == nullptr) return 1;
+            return m_activeSelection.interval->getRepeats();
+        }
         void setRepeats(uint repeats) {
-            m_repeats = repeats;
+            if (repeats < 1) return;
+            if (m_activeSelection.interval == nullptr) {
+                if (m_intervals->intervals().count() == 0) onIntervalAdd();
+            }
+            m_activeSelection.interval->setRepeats(repeats);
             emit repeatsChanged();
             updateChart();
         }
-        uint getFrom () const {return m_from;}
+        uint getFrom () const {
+            if (m_activeSelection.interval == nullptr) return 1;
+            return m_activeSelection.interval->getFrom();
+        }
         void setFrom(uint from) {
-            m_from = from;
+            if (from < 1) return;
+            if (m_activeSelection.interval == nullptr) {
+                if (m_intervals->intervals().count() == 0) onIntervalAdd();
+            }
+            m_activeSelection.interval->setFrom(from);
             emit fromChanged();
             updateChart();
         }
@@ -531,19 +540,15 @@ Q_NAMESPACE
         Workouts::FileType m_fileType {};
         QString m_fileName {};
         Workouts::WorkoutType m_workoutType {};
-        //uint m_intensity {};
         uint m_maxIntensity{};
         uint m_maxDuration{};
         uint m_ftp {};
         uint m_maxHeartRate {};
         uint m_bottom{};
         std::unique_ptr<IntervalListModel> m_intervals{};
-        std::unique_ptr<QAbstractAxis> m_xAxis = std::make_unique<QValueAxis>(this);
         qreal m_scalingFactorHeight{};
         qreal m_scalingFactorWidth{};
         int m_selectionIndex{-1};
-        uint m_repeats {};
-        uint m_from {};
         bool m_isAddIntervalEnabled {true};
         bool m_isAddStepEnabled {false};
         bool m_isRemoveIntervalEnabled {false};

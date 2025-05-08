@@ -1,5 +1,6 @@
 #include "workoutchart.hpp"
 #include <QQuickView>
+#include <QQmlEngine>
 #include <QGuiApplication>
 int main(int argc, char *argv[])
 {
