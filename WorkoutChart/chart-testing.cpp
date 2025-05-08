@@ -1,7 +1,8 @@
 #include <QTest>
 #include <QApplication>
 #include <QQuickView>
-#include <QDir>
+#include <QPainter>
+#include <QLoggingCategory>
 
 #include "workoutchart.hpp"
 
@@ -110,6 +111,8 @@ using namespace WORKOUT_CHART;
         ButtonTests() {
             setMaxDuration(60);
             setMaxIntensity(500);
+            QQuickPaintedItem::setWidth(800);
+            QQuickPaintedItem::setHeight(800);
             initialize();
         }
 
@@ -120,19 +123,91 @@ using namespace WORKOUT_CHART;
         void removeIntervalTest();
 
     private:
-        
+        // To Simulate paint event execution, it is not executed while running QTest
+        std::unique_ptr<QPainter> painter = std::make_unique<QPainter>();
     };
     void ButtonTests::addIntervalTest() {
-        
+        qDebug() << "QWARN QPainter is from non active painter, not relevant";
+        qDebug() << "Check if AddIntervalButton is enabled.";
+        QCOMPARE(WorkoutChart::isAddIntervalEnabled(), true);
+        qDebug() << "Check if AddStepButton is disabled.";
+        QCOMPARE(WorkoutChart::isAddStepEnabled(), false);
+        qDebug() << "Check if RemoveIntervalButton is disabled.";
+        QCOMPARE(WorkoutChart::isRemoveIntervalEnabled(), false);
+        qDebug() << "Check if RemoveStepButton is disabled.";
+        QCOMPARE(WorkoutChart::isRemoveStepEnabled(), false);
+        qDebug() << "Check call to onIntervalAdd.";
+        QVERIFY_THROWS_NO_EXCEPTION(WorkoutChart::onIntervalAdd());
+        WorkoutChart::paintSelection(painter.get());
+        WorkoutChart::setDuration("01:00");
+        WorkoutChart::setIntensity(100);
+        qDebug() << "Check intensity of newly added step";
+        QCOMPARE(WorkoutChart::intervals()->atIntervals(0)->step(0)->getIntensity(), 100);
+        qDebug() << "Check duration of newly added step";
+        QCOMPARE(WorkoutChart::intervals()->atIntervals(0)->step(0)->getDuration(), 1);
+        qDebug() << "Check selection of newly added step";
+        QCOMPARE(WorkoutChart::intervals()->atIntervals(0)->step(0)->isSelected(), true);
+        QCOMPARE(WorkoutChart::getIntensity(), 100);
+        QCOMPARE(WorkoutChart::getDuration(), "01:00");
+        qDebug() << "Check if AddIntervalButton is enabled.";
+        QCOMPARE(WorkoutChart::isAddIntervalEnabled(), true);
+        qDebug() << "Check if AddStepButton is enabled.";
+        QCOMPARE(WorkoutChart::isAddStepEnabled(), true);
+        qDebug() << "Check if RemoveIntervalButton is enabled.";
+        QCOMPARE(WorkoutChart::isRemoveIntervalEnabled(), true);
+        qDebug() << "Check if RemoveStepButton is enabled.";
+        QCOMPARE(WorkoutChart::isRemoveStepEnabled(), true);
     }
     void ButtonTests::addStepTest() {
-
+        qDebug() << "Check call to onStepAdd.";
+        QVERIFY_THROWS_NO_EXCEPTION(WorkoutChart::onStepAdd());
+        WorkoutChart::paintSelection(painter.get());
+        WorkoutChart::setDuration("02:00");
+        WorkoutChart::setIntensity(200);
+        qDebug() << "Verify newly created values.";
+        QCOMPARE(WorkoutChart::intervals()->atIntervals(0)->step(1)->getIntensity(), 200);
+        QCOMPARE(WorkoutChart::intervals()->atIntervals(0)->step(1)->getDuration(), 2);
+        WorkoutChart::paintSelection(painter.get());
+        qDebug() << "Check that previous step is disabled.";
+        QCOMPARE(WorkoutChart::intervals()->atIntervals(0)->step(0)->isSelected(), false);
+        qDebug() << "Check that newly created step is selected";
+        QCOMPARE(WorkoutChart::intervals()->atIntervals(0)->step(1)->isSelected(), true);
     }
     void ButtonTests::removeStepTest() {
-
+        qDebug() << "Check call to removeStep";
+        QVERIFY_THROWS_NO_EXCEPTION(WorkoutChart::onStepRemove());
+        qDebug() << "Check that only 1 step exists, i.e. one was removed";
+        QCOMPARE(WorkoutChart::intervals()->atIntervals(0)->steps().count(), 1);
+        qDebug() << "Check that the previous step is selected";
+        QCOMPARE(WorkoutChart::intervals()->atIntervals(0)->step(0)->isSelected(), true);
+        qDebug() << "Check that m_activeSelection.step points to last step";
+        QCOMPARE(WorkoutChart::m_activeSelection.step, WorkoutChart::intervals()->atIntervals(0)->at(0));
+        qDebug() << "Check Interval remove Button is enabled";
+        QCOMPARE(WorkoutChart::isRemoveIntervalEnabled(), true);
+        qDebug() << "Check Step remove Button is enabled";
+        QCOMPARE(WorkoutChart::isRemoveStepEnabled(), true);
+        qDebug() << "Check Add Interval Button is enabled";
+        QCOMPARE(WorkoutChart::isAddIntervalEnabled(), true);
+        qDebug() << "Check Add Step Button is enabled";
+        QCOMPARE(WorkoutChart::isAddStepEnabled(), true);
     }
     void ButtonTests::removeIntervalTest() {
-
+        qDebug() << "Check call to onIntervalRemove";
+        QVERIFY_THROWS_NO_EXCEPTION(WorkoutChart::onIntervalRemove());
+        qDebug() << "Check that all intervals were removed";
+        QCOMPARE(WorkoutChart::intervals()->count(), 0);
+        qDebug() << "Check that interval selection is nullptr";
+        QVERIFY(WorkoutChart::m_activeSelection.interval == nullptr);
+        qDebug() << "Check that step selection is nullptr";
+        QVERIFY(WorkoutChart::m_activeSelection.step == nullptr);
+        qDebug() << "Check Interval remove Button is disabled";
+        QCOMPARE(WorkoutChart::isRemoveIntervalEnabled(), false);
+        qDebug() << "Check Step remove Button is disabled";
+        QCOMPARE(WorkoutChart::isRemoveStepEnabled(), false);
+        qDebug() << "Check Add Interval Button is enabled";
+        QCOMPARE(WorkoutChart::isAddIntervalEnabled(), true);
+        qDebug() << "Check Add Step Button is disabled";
+        QCOMPARE(WorkoutChart::isAddStepEnabled(), false);
     }
 
     QTEST_MAIN(ButtonTests)

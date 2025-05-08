@@ -260,7 +260,7 @@ Rectangle {
             Connections {
                 target: removeInterval
                 function onClicked() {
-                    workoutChart.onRemoveInterval()
+                    workoutChart.onIntervalRemove()
                 }
             }
         }

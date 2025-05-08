@@ -78,6 +78,12 @@ namespace WORKOUT_CHART {
                 &IntervalListModel::atFunction,
                 &IntervalListModel::clearFunction};
     }
+    Interval* IntervalListModel::appendInterval() {
+        m_intervals.emplace_back(std::make_unique<Interval>());
+        WorkoutChart* myWorkoutParent {qobject_cast<WorkoutChart*>(QObject::parent())};
+        QMetaObject::invokeMethod(myWorkoutParent, "onIntervalsChanged", Qt::AutoConnection);
+        return m_intervals.back().get();
+    }
     void IntervalListModel::appendInterval(Interval* interval) {
         m_intervals.emplace_back(std::unique_ptr<Interval>(interval));
         WorkoutChart* myWorkoutParent {qobject_cast<WorkoutChart*>(QObject::parent())};
@@ -360,12 +366,10 @@ namespace WORKOUT_CHART {
         QQuickPaintedItem::update(m_selectionRect);
     }
     void WorkoutChart::onIntervalAdd() {
-        std::unique_ptr<Interval> interval = std::make_unique<Interval>();
-        std::unique_ptr<Step> step = std::make_unique<Step>();
-        m_intervals->appendInterval(interval.get());
-        m_activeSelection.interval = interval.get();
-        setRemoveIntervalEnabled(true);
+        m_activeSelection.interval = m_intervals->appendInterval();
         setAddStepEnabled(true);
+        setRemoveIntervalEnabled(true);
+        onStepAdd();
         select();
     }
     int WorkoutChart::getIntervalIndex() {
@@ -387,18 +391,33 @@ namespace WORKOUT_CHART {
         }   
         return -1;
     }
-    void WorkoutChart::onRemoveInterval() {
+    void WorkoutChart::onIntervalRemove() {
         if (m_activeSelection.interval == nullptr) {
             throw std::runtime_error("This should not happen, no selection!");
         }
+        for (const auto& step : m_activeSelection.interval->steps()) {
+            m_activeSelection.step = step;
+            onStepRemove(true);
+        }
         m_intervals->removeInterval(getIntervalIndex());
         m_oldSelection = Selection();
+        int remainingIntervals {m_intervals->count()};
+        if (remainingIntervals == 0) {
+            m_activeSelection = Selection();
+            setRemoveStepEnabled(false);
+        } 
+        else {
+            m_activeSelection.interval = m_intervals->atIntervals(remainingIntervals - 1);
+            auto steps {m_activeSelection.interval->steps().count()};
+            m_activeSelection.step = m_activeSelection.interval->at(steps - 1);
+            m_activeSelection.repeat = m_activeSelection.interval->getRepeats();
+            select();
+        }
         setRemoveIntervalEnabled(false);
         setAddStepEnabled(false);
+        updateChart();
     }
     void WorkoutChart::onStepAdd() {
-        std::unique_ptr<Step> step = std::make_unique<Step>();
-        m_activeSelection.step = step.get();
         if (m_activeSelection.interval == nullptr) {
             // either there is no interval or there is none selected
             if (m_intervals->intervals().count() > 0) {
@@ -410,11 +429,12 @@ namespace WORKOUT_CHART {
                 onIntervalAdd();
             }
         }
-        m_activeSelection.interval->appendStep(step.get());
+        m_activeSelection.step = m_activeSelection.interval->appendStep();
+        m_activeSelection.repeat = 1;
         setRemoveStepEnabled(true);
         select();
     }
-    void WorkoutChart::onStepRemove() {
+    void WorkoutChart::onStepRemove(bool isCalledFromInterval) {
         if (m_activeSelection.interval == nullptr) return;
         int stepIndex {getStepIndex()};
         if (stepIndex >= 0) {
@@ -423,10 +443,13 @@ namespace WORKOUT_CHART {
         m_oldSelection = Selection();
         if (stepIndex > 0) {
             m_activeSelection.step = m_activeSelection.interval->at(stepIndex - 1);
+            select();
         } else {
             // no steps left, remove interval
-            onRemoveInterval();
-            m_activeSelection = Selection();
+            if (!isCalledFromInterval) {
+                onIntervalRemove();
+                m_activeSelection = Selection();
+            }
             setRemoveIntervalEnabled(false);
             setRemoveStepEnabled(false);
         }

@@ -79,6 +79,7 @@ Q_NAMESPACE
             return -1;
         }
         std::pair<int,int> getSpace(uint repeat) {
+            if (repeat < 1) throw std::runtime_error("repeat has to be at least 1");
             return m_mySpaces.at(repeat - 1);
         }
         void setRepeats(uint repeat) {
@@ -94,7 +95,7 @@ Q_NAMESPACE
 
         // first value is left border, second value right border
         // All elements with index > 0 represent repeats
-        std::vector<std::pair<int, int>> m_mySpaces {};
+        std::vector<std::pair<int, int>> m_mySpaces {std::pair<int,int>(0, 0)};
         bool m_isSelected {false};
         QColor m_color{"steelblue"};
     };
@@ -122,6 +123,10 @@ Q_NAMESPACE
                 rawPtrList.append(step.get());
             }
             return rawPtrList;
+        }
+        Step* appendStep() {
+            m_steps.emplace_back(std::make_unique<Step>());
+            return m_steps.back().get();
         }
         void appendStep(Step *step) {
             m_steps.emplace_back(std::unique_ptr<Step>(step));
@@ -212,7 +217,9 @@ Q_NAMESPACE
             }
             return rawPtrs;
         }
+        Interval* appendInterval();
         void appendInterval(Interval *interval);
+        
         int count(const QModelIndex &parent = QModelIndex()) const
         {
             return m_intervals.size();
@@ -325,6 +332,9 @@ Q_NAMESPACE
             return m_maxIntensity;
         }
         void setIntensity(uint intensity) {
+            if (m_activeSelection.step == nullptr && intensity > 1) {
+                onStepAdd();
+            }
             m_activeSelection.step->setIntensity(intensity);
             emit intensityChanged();
             updateChart();
@@ -349,7 +359,9 @@ Q_NAMESPACE
             return durationString;
         }
         void setDuration (QString durationText) {
-            if (m_activeSelection.step == nullptr) return;
+            if (m_activeSelection.step == nullptr && durationText != "00:00") {
+                onStepAdd();
+            }
             QTime time {QTime::fromString(durationText, "mm:ss")};
             qreal realTime {static_cast<qreal>(time.second()) * 1/60};
             realTime += time.minute();
@@ -433,9 +445,9 @@ Q_NAMESPACE
 
     public slots:
         void onIntervalAdd();
-        void onRemoveInterval();
+        void onIntervalRemove();
         void onStepAdd();
-        void onStepRemove();
+        void onStepRemove(bool isCalledFromInterval = false);
         void onRepeatChanged();
         void onFromChanged();
         void onIntervalsChanged()
