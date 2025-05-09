@@ -363,6 +363,8 @@ Q_NAMESPACE
         QML_ELEMENT
         Q_PROPERTY(uint fileType READ getFileType WRITE setFileType NOTIFY fileTypeChanged)
         Q_PROPERTY(QString fileName READ getFileName WRITE setFileName NOTIFY fileNameChanged)
+        Q_PROPERTY(QString workoutName READ getWorkoutName WRITE setWorkoutName NOTIFY workoutNameChanged)
+        Q_PROPERTY(QString workoutNotes READ getWorkoutNotes WRITE setWorkoutNotes NOTIFY workoutNotesChanged)
         Q_PROPERTY(uint workoutType READ getWorkoutType WRITE setWorkoutType NOTIFY workoutTypeChanged)
         Q_PROPERTY(uint intensity READ getIntensity WRITE setIntensity NOTIFY intensityChanged)
         Q_PROPERTY(uint maxIntensity READ getMaxIntensity WRITE setMaxIntensity NOTIFY maxIntensityChanged)
@@ -398,6 +400,17 @@ Q_NAMESPACE
             m_fileName = fileName;
             emit fileNameChanged();
         }
+        QString getWorkoutName () const {return m_workoutName;}
+        void setWorkoutName(QString workoutName) {
+            m_workoutName = workoutName;
+            emit workoutNameChanged();
+        }
+        QString getWorkoutNotes () const {return m_workoutNotes;}
+        void setWorkoutNotes(QString workoutNotes) {
+            m_workoutNotes = workoutNotes;
+            emit workoutNotesChanged();
+        }
+        
 
         uint getWorkoutType () const {return static_cast<uint>(m_workoutType);}
         void setWorkoutType (uint intervalType) {
@@ -579,6 +592,8 @@ Q_NAMESPACE
         void maxHeartRateChanged();
         void fileTypeChanged();
         void fileNameChanged();
+        void workoutNameChanged();
+        void workoutNotesChanged();
         void workoutTypeChanged();
         void intensityChanged();
         void maxIntensityChanged();
@@ -643,6 +658,8 @@ Q_NAMESPACE
         std::unique_ptr<QColor> m_backgroundColor{std::make_unique<QColor>(Qt::lightGray)};
         Workouts::FileType m_fileType {};
         QString m_fileName {};
+        QString m_workoutName {};
+        QString m_workoutNotes {};
         Workouts::WorkoutType m_workoutType {};
         uint m_maxIntensity{};
         uint m_maxDuration{};

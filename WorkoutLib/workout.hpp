@@ -101,7 +101,7 @@ namespace Workouts {
     virtual ~Workout() = default;
 
     virtual std::size_t createInterval(WorkoutType type, ValueRange value, Duration duration) = 0;
-    void createRepeat(Repeat repeat, uint8_t times = 1);
+    void createRepeat(Repeat repeat);
     void writeToFile();
 
   protected:

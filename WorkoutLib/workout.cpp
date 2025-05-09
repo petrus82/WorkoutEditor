@@ -27,7 +27,7 @@ using namespace Workouts;
   return endTime;
 }
 
-void Workout::createRepeat(Repeat repeat, uint8_t times)
+void Workout::createRepeat(Repeat repeat)
 {
   std::vector<std::shared_ptr<Interval>> repeatVector{};
 
@@ -46,7 +46,7 @@ void Workout::createRepeat(Repeat repeat, uint8_t times)
   }
 
   // Add repeat vector to intervalls repeat.Times
-  for (uint8_t j = 0; j < times; ++j)
+  for (uint8_t j = 0; j < repeat.Times; ++j)
   {
     startPosition = m_intervals.insert(startPosition, repeatVector.begin(), repeatVector.end());
   }

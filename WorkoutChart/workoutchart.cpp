@@ -1,5 +1,9 @@
 
 #include "workoutchart.hpp"
+#include "planworkout.hpp"
+#include "fitworkout.hpp"
+#include "ergworkout.hpp"
+#include "mrcworkout.hpp"
 
 namespace WORKOUT_CHART {
     WorkoutChart* Step::getWorkoutPtr() {
@@ -498,6 +502,61 @@ namespace WORKOUT_CHART {
     }
 
     void WorkoutChart::onOkClicked() {
+        using namespace Workouts;
 
+        std::unique_ptr<Workout> workout;
+        switch (m_fileType) {
+            case FileType::Plan:
+                workout = std::make_unique<PlanWorkout>(
+                    m_fileName.toStdString(), 
+                    m_workoutName.toStdString(), 
+                    m_workoutNotes.toStdString()
+                );
+                break;
+            case FileType::Fit:
+                workout = std::make_unique<FitWorkout>(
+                    m_fileName.toStdString(), 
+                    m_workoutName.toStdString(), 
+                    m_workoutNotes.toStdString()
+                );
+                break;
+            case FileType::Erg:
+                workout = std::make_unique<ErgWorkout>(
+                    m_fileName.toStdString(), 
+                    m_workoutName.toStdString(), 
+                    m_workoutNotes.toStdString()
+                );
+                break;
+            case FileType::Mrc:
+                workout = std::make_unique<MrcWorkout>(
+                    m_fileName.toStdString(), 
+                    m_workoutName.toStdString(), 
+                    m_workoutNotes.toStdString()
+                );
+                break;
+            default:
+                throw std::runtime_error ("No such filetype.");
+        }
+
+        for (const auto& interval : m_intervals->intervals()) {
+            for (const auto& step : interval->steps()) {
+                ValueRange range;
+                range.From = getIntensity();
+                range.To = range.From;
+                QTime time {QTime::fromString(getDuration(), "mm:ss")};
+                Duration duration;
+                duration.Minutes = time.minute();
+                duration.Seconds = time.second();
+                workout->createInterval(m_workoutType, range, duration);
+            }
+            if (interval->getRepeats() > 1) {
+                Repeat repeat;
+                repeat.From = interval->getFrom();
+                repeat.To = interval->count();
+                repeat.Times = interval->getRepeats();
+                workout->createRepeat(repeat);
+            }
+        }
+        workout->writeToFile();
     }
 } // WORKOUT_CHART namespace
