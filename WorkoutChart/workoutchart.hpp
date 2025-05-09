@@ -13,14 +13,14 @@ namespace WORKOUT_CHART {
 Q_NAMESPACE
 
     struct Zone {
-        consteval explicit Zone(uint lowerIntensity, uint upperIntensity, std::string color)
+        constexpr explicit Zone(const uint lowerIntensity, const uint upperIntensity,const std::string& color)
             : LowerIntensity(lowerIntensity), UpperIntensity(upperIntensity), Color(color) {}
         uint LowerIntensity {};
         uint UpperIntensity {};
         std::string Color {};
     };
 
-    static consteval const std::array<Zone, 5> getKarvonen (uint restingHeartRate, uint maxHeartRate) {
+    static constexpr const std::array<Zone, 5> getKarvonen (const uint restingHeartRate, const uint maxHeartRate) {
         const uint heartRateReserve {maxHeartRate - restingHeartRate};
         return {
             Zone(heartRateReserve * 0.55, heartRateReserve * 0.59, "blue"),
@@ -30,8 +30,33 @@ Q_NAMESPACE
             Zone(heartRateReserve * 0.9, heartRateReserve, "red")
         };
     }
+    static constexpr const std::string getHeartRateColor (uint heartRate, uint restingHeartRate, uint maxHeartRate) {
+        const auto zones {getKarvonen(restingHeartRate, maxHeartRate)};
+        for (const auto& zone: zones) {
+            if (heartRate >= zone.LowerIntensity && heartRate <= zone.UpperIntensity) {
+                return zone.Color;
+            }
+        }
+        return "";
+    }
+    static constexpr std::string getHeartRateColor (const uint heartRatePercentage) {
+        static constexpr std::array<std::pair<uint, uint>, 5> ranges = {
+            {{55, 59}, {60, 69}, {70, 79}, {80, 89}, {90, 100}}
+        };
+        static constexpr std::array<std::string, 5> colors = {
+            "blue", "green", "yellow", "orange", "red"
+        };
+
+        for (size_t i = 0; i < ranges.size(); ++i) {
+            if (heartRatePercentage >= ranges[i].first && heartRatePercentage <= ranges[i].second) {
+                return colors[i];
+            }
+        }
+        // This should not happen
+        return "";
+    }
     template <uint nrZones>
-    static consteval const std::array<Zone, nrZones> getPowerZone(uint ftp) {
+    static constexpr const std::array<Zone, nrZones> getPowerZones(const uint ftp) {
         if constexpr (nrZones == 6) {
             return {
                 Zone(0, ftp * 0.55, "lightgray"),
@@ -53,15 +78,52 @@ Q_NAMESPACE
             };
         }
     }
-    //static constexpr auto Zones {getPowerZone<6>(310)};
-    
+
+    template <uint nrZones>
+    static constexpr const std::string getPowerZoneColor (const uint power, const uint ftp) {
+        const auto zones {getPowerZones<nrZones>(ftp)};
+        for (const auto& zone: zones) {
+            if (power >= zone.LowerIntensity && power <= zone.UpperIntensity) {
+                return zone.Color;
+            }
+        }
+        return "black";
+    }
+    template <uint nrZones>
+    static constexpr const std::string getPowerZoneColor (const uint powerPercentage) {
+        static constexpr auto ranges = [](){
+            if constexpr (nrZones == 6) {
+                return std::array<std::pair<uint, uint>, 6>{{{0, 55}, {56, 75}, {76, 90}, {91, 105}, {106, 120}, {121, 200}}};
+            } else if constexpr (nrZones == 7) {
+                return std::array<std::pair<uint, uint>, 7>{{{0, 55}, {56, 75}, {76, 87}, {88, 94}, {95, 105}, {106, 120}, {121, 200}}};
+            }
+        }();
+
+        static constexpr auto colors = [](){
+            if constexpr (nrZones == 6) {
+                return std::array<std::string, 6>{{"lightgray", "blue", "lightblue", "green", "yellow", "orange"}};
+            } else if constexpr (nrZones == 7) {
+                return std::array<std::string, 7>{{"lightgray", "blue", "lightblue", "green", "yellow", "orange", "red"}};
+            }
+        }();
+
+        for (size_t i = 0; i < ranges.size(); ++i) {
+            if (powerPercentage >= ranges[i].first && powerPercentage <= ranges[i].second) {
+                return colors[i];
+            }
+        }
+        // This should not happen
+        return "";
+    }
+
+    class WorkoutChart;
     class Step : public QObject
     {
         Q_OBJECT
         QML_ELEMENT
         Q_PROPERTY(uint intensity READ getIntensity WRITE setIntensity)
         Q_PROPERTY(qreal duration READ getDuration WRITE setDuration)
-        Q_PROPERTY(QColor color READ getColor WRITE setColor)
+        Q_PROPERTY(QColor color READ getColor)
         Q_PROPERTY(bool isSelected READ isSelected WRITE setSelected);
         Q_CLASSINFO("DefaultProperty", "data")
 
@@ -74,20 +136,7 @@ Q_NAMESPACE
         qreal getDuration() const { return m_duration; }
         void setDuration(qreal duration) { m_duration = duration; }
 
-        QColor getColor(uint repeat = 1) { 
-            int hue, saturation, value;
-            m_color.getHsv(&hue, &saturation, &value);
-            if (repeat > 1) saturation *= 0.5;
-            QColor newColor;
-            newColor.setHsv(hue, saturation, value);
-            return newColor;
-        }
-        void setColor(QColor color) {
-            if (color.isValid())
-            {
-                m_color = color;
-            }
-        }
+        QColor getColor(uint repeat = 1);
         bool isSelected() const { return m_isSelected; }
         void setSelected(bool isSelected) { m_isSelected = isSelected; }
 
@@ -128,6 +177,9 @@ Q_NAMESPACE
             }
         }
         uint top{};
+    
+    private:
+        WorkoutChart* getWorkoutPtr();
 
     private:
         uint m_intensity{};
@@ -137,7 +189,6 @@ Q_NAMESPACE
         // All elements with index > 0 represent repeats
         std::vector<std::pair<int, int>> m_mySpaces {std::pair<int,int>(0, 0)};
         bool m_isSelected {false};
-        QColor m_color{"steelblue"};
     };
 
     class Interval : public QObject
@@ -318,6 +369,7 @@ Q_NAMESPACE
         Q_PROPERTY(QString duration READ getDuration WRITE setDuration NOTIFY durationChanged())
         Q_PROPERTY(uint maxDuration READ getMaxDuration WRITE setMaxDuration NOTIFY maxDurationChanged)
         Q_PROPERTY(uint ftp READ getFTP WRITE setFTP NOTIFY ftpChanged)
+        Q_PROPERTY(uint restingHeartRate READ getRestingHeartRate WRITE setRestingHeartRate NOTIFY restingHeartRateChanged)
         Q_PROPERTY(uint maxHeartRate READ getMaxHeartRate WRITE setMaxHeartRate NOTIFY maxHeartRateChanged)
         Q_PROPERTY(QColor *backgroundColor READ getBackgroundColor WRITE setBackgroundColor NOTIFY backgroundColorChanged)
         Q_PROPERTY(IntervalListModel *intervals READ intervals)
@@ -430,7 +482,11 @@ Q_NAMESPACE
             m_maxHeartRate = maxHeartRate;
             emit maxHeartRateChanged();
         }
-
+        uint getRestingHeartRate () const {return m_restingHeartRate;}
+        void setRestingHeartRate (uint restingHeartRate) {
+            m_restingHeartRate = restingHeartRate;
+            emit restingHeartRateChanged();
+        }
         IntervalListModel *intervals() const
         {
             return m_intervals.get();
@@ -519,6 +575,7 @@ Q_NAMESPACE
         void intervalClicked(Interval* interval, Step* step);
         void selectionPainted();
         void ftpChanged();
+        void restingHeartRateChanged();
         void maxHeartRateChanged();
         void fileTypeChanged();
         void fileNameChanged();
@@ -589,7 +646,8 @@ Q_NAMESPACE
         Workouts::WorkoutType m_workoutType {};
         uint m_maxIntensity{};
         uint m_maxDuration{};
-        uint m_ftp {};
+        uint m_ftp {310};
+        uint m_restingHeartRate {};
         uint m_maxHeartRate {};
         std::unique_ptr<IntervalListModel> m_intervals{};
         qreal m_scalingFactorHeight{};

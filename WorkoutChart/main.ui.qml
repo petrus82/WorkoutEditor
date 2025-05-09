@@ -451,7 +451,6 @@ Rectangle {
                             Step {
                                 intensity: 200
                                 duration: 5.0
-                                color: "steelblue"
                             }
                         ]
                     },
@@ -462,12 +461,10 @@ Rectangle {
                             Step {
                                 intensity: 320
                                 duration: 5.0
-                                color: "red"
                             },
                             Step {
                                 intensity: 50
                                 duration: 5.0
-                                color: "steelblue"
                             }
                         ]
                     }

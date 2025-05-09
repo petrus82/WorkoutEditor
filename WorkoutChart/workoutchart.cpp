@@ -2,6 +2,40 @@
 #include "workoutchart.hpp"
 
 namespace WORKOUT_CHART {
+    WorkoutChart* Step::getWorkoutPtr() {
+        return qobject_cast<WorkoutChart*>(QObject::parent()->parent()->parent());
+    }
+
+    QColor Step::getColor(uint repeat) { 
+        int hue, saturation, value;
+        QColor color;
+        WorkoutChart* myWorkout{getWorkoutPtr()};
+        Workouts::WorkoutType workoutType {
+            static_cast<Workouts::WorkoutType>(myWorkout->getWorkoutType())
+        };
+        if (workoutType == Workouts::WorkoutType::AbsoluteWatt) {
+            uint ftp {myWorkout->getFTP()};
+            color = QString::fromStdString(getPowerZoneColor<6>(m_intensity, ftp));
+        }
+        else if(workoutType == Workouts::WorkoutType::AbsoluteHeartRate) {
+            uint restingHeartRate {myWorkout->getRestingHeartRate()};
+            uint maxHeartRate {myWorkout->getMaxHeartRate()};
+            color = QString::fromStdString(getHeartRateColor(m_intensity, restingHeartRate, maxHeartRate));
+        }
+        else if (workoutType == Workouts::WorkoutType::PercentFTP) {
+            color = QString::fromStdString(getPowerZoneColor<6>(m_intensity));
+        }
+        else {
+            color = QString::fromStdString(getHeartRateColor(m_intensity));
+        }
+        
+        color.getHsv(&hue, &saturation, &value);
+        
+        if (repeat > 1) saturation *= 0.5;
+        QColor newColor;
+        newColor.setHsv(hue, saturation, value);
+        return newColor;
+    }
     QQmlListProperty<Step> Interval::stepList() 
     {
         return {this, this,
