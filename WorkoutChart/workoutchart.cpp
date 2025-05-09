@@ -167,11 +167,11 @@ namespace WORKOUT_CHART {
             right = left + duration * m_scalingFactorWidth;
             height = intensity * m_scalingFactorHeight;
             width = duration * m_scalingFactorWidth;
-            uint top (m_bottom - height);
+            uint top (getBottom() - height);
             rect.setLeft(left);
             rect.setTop(top);
             rect.setRight(right);
-            rect.setBottom(m_bottom);
+            rect.setBottom(getBottom());
             QColor intervalColor {step->getColor(repeat)};
             
             painter->fillRect(rect, intervalColor);
@@ -203,7 +203,7 @@ namespace WORKOUT_CHART {
         } else {
             m_intervals = std::unique_ptr<IntervalListModel>(qobject_cast<IntervalListModel*>(object));
         }
-        m_bottom = QQuickItem::height() - margin;
+        
         QObject::connect(this, &WorkoutChart::selectionPainted, this, &WorkoutChart::onSelectionFinished);
     }
 
@@ -360,7 +360,7 @@ namespace WORKOUT_CHART {
     void WorkoutChart::prepareSelection (Selection* selection) {
         m_selectionRect.setTop(selection->step->top);
         m_selectionRect.setLeft(selection->step->getSpace(selection->repeat).first);
-        m_selectionRect.setBottom(m_bottom);
+        m_selectionRect.setBottom(getBottom());
         m_selectionRect.setRight(selection->step->getSpace(selection->repeat).second);
         m_paintExtent = PaintExtent::selection;
         QQuickPaintedItem::update(m_selectionRect);

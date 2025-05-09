@@ -11,6 +11,50 @@
 
 namespace WORKOUT_CHART {
 Q_NAMESPACE
+
+    struct Zone {
+        consteval explicit Zone(uint lowerIntensity, uint upperIntensity, std::string color)
+            : LowerIntensity(lowerIntensity), UpperIntensity(upperIntensity), Color(color) {}
+        uint LowerIntensity {};
+        uint UpperIntensity {};
+        std::string Color {};
+    };
+
+    static consteval const std::array<Zone, 5> getKarvonen (uint restingHeartRate, uint maxHeartRate) {
+        const uint heartRateReserve {maxHeartRate - restingHeartRate};
+        return {
+            Zone(heartRateReserve * 0.55, heartRateReserve * 0.59, "blue"),
+            Zone(heartRateReserve * 0.6, heartRateReserve * 0.69, "green"),
+            Zone(heartRateReserve * 0.7, heartRateReserve * 0.79, "yellow"),
+            Zone(heartRateReserve * 0.8, heartRateReserve * 0.89, "orange"),
+            Zone(heartRateReserve * 0.9, heartRateReserve, "red")
+        };
+    }
+    template <uint nrZones>
+    static consteval const std::array<Zone, nrZones> getPowerZone(uint ftp) {
+        if constexpr (nrZones == 6) {
+            return {
+                Zone(0, ftp * 0.55, "lightgray"),
+                Zone(ftp * 0.56, ftp * 0.75, "blue"),
+                Zone(ftp * 0.76, ftp * 0.9, "lightblue"),
+                Zone(ftp * 0.91, ftp * 1.05, "green"),
+                Zone(ftp * 1.06, ftp * 1.2, "yellow"),
+                Zone(ftp * 1.21, 2000, "orange")
+            };
+        } else {
+            return {
+                Zone(0, ftp * 0.55, "lightgray"),
+                Zone(ftp * 0.56, ftp * 0.75, "blue"),
+                Zone(ftp * 0.76, ftp * 0.87, "lightblue"),
+                Zone(ftp * 0.88, ftp * 0.94, "green"),
+                Zone(ftp * 0.95, ftp * 1.05, "yellow"),
+                Zone(ftp * 1.06, ftp * 1.2, "orange"),
+                Zone(ftp * 1.21, 2000, "red")
+            };
+        }
+    }
+    //static constexpr auto Zones {getPowerZone<6>(310)};
+    
     class Step : public QObject
     {
         Q_OBJECT
@@ -515,6 +559,9 @@ Q_NAMESPACE
             }
             return true;
         }
+        uint getBottom() {
+            return QQuickItem::height() - margin;
+        }
     protected:
         QRect m_selectionRect{};
         Selection m_oldSelection;
@@ -544,7 +591,6 @@ Q_NAMESPACE
         uint m_maxDuration{};
         uint m_ftp {};
         uint m_maxHeartRate {};
-        uint m_bottom{};
         std::unique_ptr<IntervalListModel> m_intervals{};
         qreal m_scalingFactorHeight{};
         qreal m_scalingFactorWidth{};
