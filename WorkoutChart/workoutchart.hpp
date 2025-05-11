@@ -245,7 +245,7 @@ Q_NAMESPACE
         void setRepeats(uint repeats) {
             if (repeats > 1) {
                 for (uint index = m_from; index <= m_steps.size(); ++index) {
-                    m_steps[index]->setRepeats(repeats);
+                    m_steps[index - 1]->setRepeats(repeats);
                 }
                 m_repeats = repeats;
                 emit repeatsChanged();

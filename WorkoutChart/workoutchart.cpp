@@ -478,6 +478,8 @@ namespace WORKOUT_CHART {
         } 
         m_activeSelection.step = m_activeSelection.interval->appendStep();
         m_activeSelection.repeat = 1;
+        emit durationChanged();
+        emit intensityChanged();
         setRemoveStepEnabled(true);
         select();
     }
