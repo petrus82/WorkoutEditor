@@ -182,8 +182,8 @@ Q_NAMESPACE
         WorkoutChart* getWorkoutPtr();
 
     private:
-        uint m_intensity{};
-        qreal m_duration{};
+        uint m_intensity{200};
+        qreal m_duration{5};
 
         // first value is left border, second value right border
         // All elements with index > 0 represent repeats
@@ -446,7 +446,7 @@ Q_NAMESPACE
             updateChart();
         }
         uint getIntensity () const {
-            if (m_activeSelection.step == nullptr) return 0;
+            if (m_activeSelection.step == nullptr) return 200;
             return m_activeSelection.step->getIntensity();
         }
         void setMaxIntensity(uint value)
@@ -456,7 +456,7 @@ Q_NAMESPACE
             updateChart();
         }
         QString getDuration () const {
-            if (m_activeSelection.step == nullptr) return QString("00:00");
+            if (m_activeSelection.step == nullptr) return QString("05:00");
             qreal duration {m_activeSelection.step->getDuration()};
             uint totalSeconds {static_cast<uint>(duration * 60)};
             uint minutes {static_cast<uint>(totalSeconds / 60)};

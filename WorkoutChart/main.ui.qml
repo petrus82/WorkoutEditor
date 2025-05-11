@@ -344,7 +344,6 @@ Rectangle {
 
         SpinBox {
             id: intervalIntensitySpinBox
-            objectName: "intervalValue"
             y: 221
             width: 150
             height: 40
