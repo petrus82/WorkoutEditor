@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG  "-g -ggdb")
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) # for Garmin SDK -fPIC needed
 
 add_subdirectory(WorkoutLib)
 add_subdirectory(WorkoutChart)

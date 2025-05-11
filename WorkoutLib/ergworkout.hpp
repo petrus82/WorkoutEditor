@@ -26,7 +26,7 @@ public:
 class ErgWorkout : public Workout
 {
 public:
-    explicit ErgWorkout(const std::string &file, std::string workoutName, std::string notes)
+    explicit ErgWorkout(const std::string file, std::string workoutName, std::string notes)
         : Workout(file, workoutName, notes) {}
 
     ~ErgWorkout()

@@ -50,6 +50,10 @@ add_library(${QML_NAME}
 
 link_directories(${CMAKE_BINARY_DIR}/build)
 
+target_link_libraries(${PLUGIN_NAME} PUBLIC
+  Qt6::Quick
+  WorkoutLib
+)
 target_link_libraries(${EXECUTABLE_NAME} PUBLIC
   #Qt6::Core
   Qt6::Quick
@@ -61,12 +65,12 @@ target_link_libraries(${EXECUTABLE_NAME} PUBLIC
 target_include_directories(${QML_NAME} PUBLIC
     ${Qt6Core_INCLUDE_DIRS}
     ${Qt6Gui_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/WorkoutLib
+    "${CMAKE_SOURCE_DIR}/WorkoutLib"
     "${CMAKE_SOURCE_DIR}/WorkoutLib/Garmin SDK/cpp"
 )
 target_include_directories(${PLUGIN_NAME} PUBLIC
     ${Qt6Gui_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/WorkoutLib
+    "${CMAKE_SOURCE_DIR}/WorkoutLib"
     "${CMAKE_SOURCE_DIR}/WorkoutLib/Garmin SDK/cpp"
 )
 target_include_directories(${EXECUTABLE_NAME} PUBLIC

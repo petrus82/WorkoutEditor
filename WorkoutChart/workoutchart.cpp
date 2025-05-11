@@ -503,10 +503,10 @@ namespace WORKOUT_CHART {
 
     void WorkoutChart::onOkClicked() {
         using namespace Workouts;
-
         std::unique_ptr<Workout> workout;
         switch (m_fileType) {
             case FileType::Plan:
+                
                 workout = std::make_unique<PlanWorkout>(
                     m_fileName.toStdString(), 
                     m_workoutName.toStdString(), 
@@ -558,5 +558,6 @@ namespace WORKOUT_CHART {
             }
         }
         workout->writeToFile();
+        qApp->exit(0);
     }
 } // WORKOUT_CHART namespace

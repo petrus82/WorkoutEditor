@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cstdint>
+#include <cstdio>
 #include <memory>
 #include <vector>
 #include <filesystem>
@@ -94,8 +95,11 @@ namespace Workouts {
         : m_workoutName(workoutName), m_notes(notes)
     {
       m_file.open(filename, std::ios::out | std::ios::in | std::ios::trunc | std::ios::binary);
+      if (!m_file.is_open()) {
+        perror("Error while opening file");
+      }
     }
-    explicit Workout(std::string &filename, std::string workoutName, std::string notes)
+    explicit Workout(std::string filename, std::string workoutName, std::string notes)
         : Workout(std::filesystem::path(filename), workoutName, notes) {}
 
     virtual ~Workout() = default;

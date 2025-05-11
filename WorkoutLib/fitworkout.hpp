@@ -36,7 +36,7 @@ private:
 class FitWorkout : public Workout
 {
 public:
-  explicit FitWorkout(const std::string &file, std::string workoutName, std::string notes)
+  explicit FitWorkout(const std::string file, std::string workoutName, std::string notes)
       : Workout(file, workoutName, notes)
   {
     writeWorkout();

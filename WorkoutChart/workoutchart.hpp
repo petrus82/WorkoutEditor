@@ -397,7 +397,7 @@ Q_NAMESPACE
         }
         QString getFileName () const {return m_fileName;}
         void setFileName(QString fileName) {
-            m_fileName = fileName;
+            m_fileName = QUrl(fileName).toLocalFile();
             emit fileNameChanged();
         }
         QString getWorkoutName () const {return m_workoutName;}

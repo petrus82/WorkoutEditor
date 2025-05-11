@@ -65,6 +65,24 @@ Rectangle {
                 target: fileTypeComboBox
                 function onActivated() {
                     workoutChart.fileType = fileTypeComboBox.currentIndex
+                        switch (fileTypeComboBox.currentIndex) {
+                            case 0: // Fit
+                                fileDialog.nameFilters = ["Fit files (*.fit)"];
+                                fileDialog.defaultSuffix = "fit";
+                                break;
+                            case 1: // Plan
+                                fileDialog.nameFilters = ["Plan files (*.plan)"];
+                                fileDialog.defaultSuffix = "plan";
+                                break;
+                            case 2: // Erg
+                                fileDialog.nameFilters = ["Erg files (*.erg)"];
+                                fileDialog.defaultSuffix = "erg";
+                                break;
+                            case 3: // Mrc
+                                fileDialog.nameFilters = ["Mrc files (*.mrc)"];
+                                fileDialog.defaultSuffix = "mrc";
+                                break;
+                    }
                 }
             }
         }
@@ -84,10 +102,13 @@ Rectangle {
 
         FileDialog {
             id: fileDialog
+            fileMode: FileDialog.SaveFile
+            nameFilters: ["Fit files (*.fit)"];
+            defaultSuffix : "fit"
             Connections {
                 target: fileDialog
                 function onAccepted() {
-                    workoutChart.fileName = fileDialog.selectedFile
+                    workoutChart.fileName = decodeURI(fileDialog.selectedFile)
                 }
             }
         }

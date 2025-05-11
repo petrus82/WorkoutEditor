@@ -27,7 +27,7 @@ public:
 class MrcWorkout : public Workout
 {
 public:
-    explicit MrcWorkout(const std::string &file, std::string workoutName, std::string notes)
+    explicit MrcWorkout(const std::string file, std::string workoutName, std::string notes)
         : Workout(file, workoutName, notes) {}
     ~MrcWorkout()
     {

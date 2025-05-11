@@ -24,7 +24,7 @@ public:
 class PlanWorkout : public Workout
 {
 public:
-  explicit PlanWorkout(const std::string &file, std::string workoutName, std::string notes)
+  explicit PlanWorkout(const std::string file, std::string workoutName, std::string notes)
       : Workout(file, workoutName, notes)
   {
     wrapDescription(m_notes);
