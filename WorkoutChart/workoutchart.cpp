@@ -537,6 +537,7 @@ namespace WORKOUT_CHART {
                     m_workoutName.toStdString(), 
                     m_workoutNotes.toStdString()
                 );
+                static_cast<ErgWorkout*>(workout.get())->setFtp(m_ftp);
                 break;
             case FileType::Mrc:
                 workout = std::make_unique<MrcWorkout>(
@@ -552,12 +553,12 @@ namespace WORKOUT_CHART {
         for (const auto& interval : m_intervals->intervals()) {
             for (const auto& step : interval->steps()) {
                 ValueRange range;
-                range.From = getIntensity();
+                range.From = step->getIntensity();
                 range.To = range.From;
-                QTime time {QTime::fromString(getDuration(), "mm:ss")};
+                qreal time {step->getDuration()};
                 Duration duration;
-                duration.Minutes = time.minute();
-                duration.Seconds = time.second();
+                duration.Minutes = static_cast<uintType>(time);
+                duration.Seconds = (time - static_cast<qreal>(duration.Minutes)) * 60;
                 workout->createInterval(m_workoutType, range, duration);
             }
             if (interval->getRepeats() > 1) {
@@ -568,7 +569,6 @@ namespace WORKOUT_CHART {
                 workout->createRepeat(repeat);
             }
         }
-        workout->writeToFile();
         qApp->exit(0);
     }
 } // WORKOUT_CHART namespace
