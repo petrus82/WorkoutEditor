@@ -244,8 +244,8 @@ Q_NAMESPACE
         }
         void setRepeats(uint repeats) {
             if (repeats > 1) {
-                for (const auto& step : m_steps) {
-                    step->setRepeats(repeats);
+                for (uint index = m_from; index <= m_steps.size(); ++index) {
+                    m_steps[index]->setRepeats(repeats);
                 }
                 m_repeats = repeats;
                 emit repeatsChanged();
@@ -285,7 +285,7 @@ Q_NAMESPACE
 
     private:
         uint m_repeats {1};
-        qreal m_duration {};
+        qreal m_duration {5};
         uint m_from {1};
         std::vector<std::unique_ptr<Step>> m_steps;
     };

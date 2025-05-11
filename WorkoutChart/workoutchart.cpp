@@ -402,8 +402,13 @@ namespace WORKOUT_CHART {
         m_selectionRect.setLeft(selection->step->getSpace(selection->repeat).first);
         m_selectionRect.setBottom(getBottom());
         m_selectionRect.setRight(selection->step->getSpace(selection->repeat).second);
-        m_paintExtent = PaintExtent::selection;
-        QQuickPaintedItem::update(m_selectionRect);
+        if (m_selectionRect.left() == m_selectionRect.right()) {
+            m_paintExtent = PaintExtent::everything;
+            QQuickPaintedItem::update();
+        } else {
+            m_paintExtent = PaintExtent::selection;
+            QQuickPaintedItem::update(m_selectionRect);
+        }
     }
     void WorkoutChart::onIntervalAdd(bool isCalledFromStep) {
         m_activeSelection.interval = m_intervals->appendInterval();
