@@ -467,7 +467,7 @@ Rectangle {
                 id: intervalList
                 objectName: "intervalList"
                 intervalList: [
-                    Interval {
+/*                     Interval {
                         stepList: [
                             Step {
                                 intensity: 200
@@ -488,7 +488,7 @@ Rectangle {
                                 duration: 5.0
                             }
                         ]
-                    }
+                    } */
                 ]
             }
         }

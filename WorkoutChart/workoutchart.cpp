@@ -118,6 +118,7 @@ namespace WORKOUT_CHART {
     }
     Interval* IntervalListModel::appendInterval() {
         m_intervals.emplace_back(std::make_unique<Interval>());
+        m_intervals.back()->setParent(this);
         WorkoutChart* myWorkoutParent {qobject_cast<WorkoutChart*>(QObject::parent())};
         QMetaObject::invokeMethod(myWorkoutParent, "onIntervalsChanged", Qt::AutoConnection);
         return m_intervals.back().get();
@@ -125,6 +126,7 @@ namespace WORKOUT_CHART {
     void IntervalListModel::appendInterval(Interval* interval) {
         m_intervals.emplace_back(std::unique_ptr<Interval>(interval));
         WorkoutChart* myWorkoutParent {qobject_cast<WorkoutChart*>(QObject::parent())};
+        interval->setParent(this);
         QMetaObject::invokeMethod(myWorkoutParent, "onIntervalsChanged", Qt::AutoConnection);
     }
 
@@ -403,12 +405,14 @@ namespace WORKOUT_CHART {
         m_paintExtent = PaintExtent::selection;
         QQuickPaintedItem::update(m_selectionRect);
     }
-    void WorkoutChart::onIntervalAdd() {
+    void WorkoutChart::onIntervalAdd(bool isCalledFromStep) {
         m_activeSelection.interval = m_intervals->appendInterval();
         setAddStepEnabled(true);
         setRemoveIntervalEnabled(true);
-        onStepAdd();
-        select();
+        if (!isCalledFromStep) {
+            onStepAdd();
+            select();
+        }
     }
     int WorkoutChart::getIntervalIndex() {
         int index {};
@@ -464,9 +468,9 @@ namespace WORKOUT_CHART {
             }
             else {
                 // no interval yet, make one
-                onIntervalAdd();
+                onIntervalAdd(true);
             }
-        }
+        } 
         m_activeSelection.step = m_activeSelection.interval->appendStep();
         m_activeSelection.repeat = 1;
         setRemoveStepEnabled(true);

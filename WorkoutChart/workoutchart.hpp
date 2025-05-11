@@ -217,10 +217,12 @@ Q_NAMESPACE
         }
         Step* appendStep() {
             m_steps.emplace_back(std::make_unique<Step>());
+            m_steps.back()->setParent(this);
             return m_steps.back().get();
         }
         void appendStep(Step *step) {
             m_steps.emplace_back(std::unique_ptr<Step>(step));
+            step->setParent(this);
         }
         int count() const {return m_steps.size();}
         Step *at(long long index) const { return m_steps.at(index).get();}
@@ -566,7 +568,7 @@ Q_NAMESPACE
         void paint(QPainter *painter) override;
 
     public slots:
-        void onIntervalAdd();
+        void onIntervalAdd(bool isCalledFromStep = false);
         void onIntervalRemove();
         void onStepAdd();
         void onStepRemove(bool isCalledFromInterval = false);
