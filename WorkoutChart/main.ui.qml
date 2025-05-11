@@ -7,6 +7,7 @@ this file manually, you might introduce QML code that is not supported by Qt Des
 Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
 */
 pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls.Material
 import QtQuick.Layouts
@@ -65,23 +66,27 @@ Rectangle {
                 target: fileTypeComboBox
                 function onActivated() {
                     workoutChart.fileType = fileTypeComboBox.currentIndex
-                        switch (fileTypeComboBox.currentIndex) {
-                            case 0: // Fit
-                                fileDialog.nameFilters = ["Fit files (*.fit)"];
-                                fileDialog.defaultSuffix = "fit";
-                                break;
-                            case 1: // Plan
-                                fileDialog.nameFilters = ["Plan files (*.plan)"];
-                                fileDialog.defaultSuffix = "plan";
-                                break;
-                            case 2: // Erg
-                                fileDialog.nameFilters = ["Erg files (*.erg)"];
-                                fileDialog.defaultSuffix = "erg";
-                                break;
-                            case 3: // Mrc
-                                fileDialog.nameFilters = ["Mrc files (*.mrc)"];
-                                fileDialog.defaultSuffix = "mrc";
-                                break;
+                    switch (fileTypeComboBox.currentIndex) {
+                    case 0:
+                        // Fit
+                        fileDialog.nameFilters = ["Fit files (*.fit)"]
+                        fileDialog.defaultSuffix = "fit"
+                        break
+                    case 1:
+                        // Plan
+                        fileDialog.nameFilters = ["Plan files (*.plan)"]
+                        fileDialog.defaultSuffix = "plan"
+                        break
+                    case 2:
+                        // Erg
+                        fileDialog.nameFilters = ["Erg files (*.erg)"]
+                        fileDialog.defaultSuffix = "erg"
+                        break
+                    case 3:
+                        // Mrc
+                        fileDialog.nameFilters = ["Mrc files (*.mrc)"]
+                        fileDialog.defaultSuffix = "mrc"
+                        break
                     }
                 }
             }
@@ -103,8 +108,8 @@ Rectangle {
         FileDialog {
             id: fileDialog
             fileMode: FileDialog.SaveFile
-            nameFilters: ["Fit files (*.fit)"];
-            defaultSuffix : "fit"
+            nameFilters: ["Fit files (*.fit)"]
+            defaultSuffix: "fit"
             Connections {
                 target: fileDialog
                 function onAccepted() {
@@ -149,17 +154,16 @@ Rectangle {
         ComboBox {
             id: workoutTypeComboBox
             anchors.left: parent.left
-            anchors.right: removeInterval.left
-            anchors.top: addIntervalButton.bottom
+            anchors.right: removeStep.right
+            anchors.top: parent.top
             anchors.leftMargin: 20
-            anchors.rightMargin: 50
-            anchors.topMargin: 30
+            anchors.rightMargin: 0
+            anchors.topMargin: 20
             x: 91
             height: 40
             leftPadding: 20
             model: [qsTr("Absolute Watts"), qsTr("Relative FTP"), qsTr(
-                    "Absolute Heart Rate"), qsTr("Percent Max Heart Rate")
-                ]
+                    "Absolute Heart Rate"), qsTr("Percent Max Heart Rate")]
             currentIndex: workoutChart.workoutType
 
             Label {
@@ -184,12 +188,13 @@ Rectangle {
             id: fromSpinBox
             width: 150
             height: 40
-            anchors.topMargin: 30
+            anchors.topMargin: 41
             editable: true
-            anchors.horizontalCenter: parent.horizontalCenter
             enabled: false
             value: workoutChart.from
-            y: 221
+            anchors.left: removeStep.left
+            anchors.top: addStep.bottom
+            anchors.leftMargin: 0
 
             Label {
                 id: fromLabel
@@ -255,9 +260,9 @@ Rectangle {
             enabled: workoutChart.addIntervalEnabled
             text: qsTr("&Add interval")
             anchors.left: parent.left
-            anchors.top: parent.top
+            anchors.top: workoutTypeComboBox.bottom
             anchors.leftMargin: 20
-            anchors.topMargin: 10
+            anchors.topMargin: 20
             Connections {
                 target: addIntervalButton
                 function onClicked() {
@@ -274,10 +279,10 @@ Rectangle {
             height: 40
             radius: 10
             text: qsTr("&Remove interval")
-            anchors.left: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.leftMargin: -75
-            anchors.topMargin: 10
+            anchors.left: addIntervalButton.right
+            anchors.top: addIntervalButton.bottom
+            anchors.leftMargin: 100
+            anchors.topMargin: -40
             enabled: workoutChart.removeIntervalEnabled
             Connections {
                 target: removeInterval
@@ -344,14 +349,13 @@ Rectangle {
 
         SpinBox {
             id: intervalIntensitySpinBox
-            y: 221
             width: 150
             height: 40
             value: workoutChart.intensity
             anchors.right: parent.right
-            anchors.top: addIntervalButton.bottom
+            anchors.top: repeatSpinBox.top
             anchors.rightMargin: 20
-            anchors.topMargin: 30
+            anchors.topMargin: 0
             editable: true
             stepSize: 25
             enabled: true
@@ -376,15 +380,12 @@ Rectangle {
 
         TextField {
             id: intervalTimeText
+            height: 40
             text: workoutChart.duration
-            anchors.left: removeInterval.left
-            anchors.right: removeInterval.right
-            anchors.top: removeInterval.bottom
-            anchors.bottom: workoutTypeComboBox.bottom
+            anchors.left: workoutName.left
+            anchors.top: repeatSpinBox.top
             anchors.leftMargin: 0
-            anchors.rightMargin: 0
-            anchors.topMargin: 30
-            anchors.bottomMargin: 0
+            anchors.topMargin: 0
             horizontalAlignment: Text.AlignHCenter
             cursorVisible: true
             placeholderTextColor: "#78000000"
@@ -404,8 +405,8 @@ Rectangle {
 
             Connections {
                 target: intervalTimeText
-                function onEditingFinished() { 
-                    workoutChart.duration = intervalTimeText.text 
+                function onEditingFinished() {
+                    workoutChart.duration = intervalTimeText.text
                 }
             }
         }
@@ -418,7 +419,7 @@ Rectangle {
             enabled: workoutChart.addStepEnabled
             text: qsTr("Add &step")
             anchors.left: parent.left
-            anchors.top: workoutTypeComboBox.bottom
+            anchors.top: addIntervalButton.bottom
             anchors.leftMargin: 20
             anchors.topMargin: 20
             Connections {
@@ -434,16 +435,44 @@ Rectangle {
             height: 40
             radius: 10
             text: qsTr("R&emove step")
+            anchors.left: removeInterval.left
             enabled: workoutChart.removeStepEnabled
-            anchors.top: workoutTypeComboBox.bottom
-            anchors.topMargin: 20
-            anchors.horizontalCenter: removeInterval.horizontalCenter
+            anchors.top: addStep.top
+            anchors.leftMargin: 0
+            anchors.topMargin: 0
             Connections {
                 target: removeStep
                 function onClicked() {
                     workoutChart.onStepRemove()
                 }
             }
+        }
+
+        TextField {
+            id: workoutName
+            height: 40
+            anchors.left: removeInterval.right
+            anchors.right: settingsButton.left
+            anchors.top: workoutTypeComboBox.top
+            anchors.leftMargin: 50
+            anchors.rightMargin: 50
+            anchors.topMargin: 0
+            text: workoutChart.workoutName
+            placeholderText: "Workout Name"
+        }
+        TextField {
+            id: workoutNotes
+            anchors.left: workoutName.left
+            anchors.right: parent.right
+            anchors.top: addIntervalButton.top
+            anchors.bottom: addStep.bottom
+            anchors.leftMargin: 0
+            anchors.rightMargin: 20
+            anchors.topMargin: 0
+            anchors.bottomMargin: 0
+            wrapMode: Text.WordWrap
+            text: workoutChart.workoutNotes
+            placeholderText: "Workout Notes"
         }
     }
     Frame {
@@ -466,7 +495,7 @@ Rectangle {
                 id: intervalList
                 objectName: "intervalList"
                 intervalList: [
-/*                     Interval {
+                    /*                     Interval {
                         stepList: [
                             Step {
                                 intensity: 200
