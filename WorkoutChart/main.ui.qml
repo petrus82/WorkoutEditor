@@ -22,130 +22,11 @@ Rectangle {
     anchors.fill: parent
     color: "#eaeaea"
     Frame {
-        id: fileFrame
-        x: 50
-        y: 50
-        height: 180
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.leftMargin: 20
-        anchors.rightMargin: 20
-        anchors.topMargin: 20
-        contentHeight: 130
-
-        ComboBox {
-            id: fileTypeComboBox
-            height: 40
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.leftMargin: 20
-            anchors.rightMargin: 20
-            anchors.topMargin: 50
-            currentIndex: workoutChart.fileType
-            property int fileType: 0
-            x: 91
-            y: 91
-            leftPadding: 20
-            model: [qsTr("Fit file"), qsTr("Plan file"), qsTr("Erg file"), qsTr(
-                    "Mrc file")]
-
-            Label {
-                id: fileLabel
-                x: -1240
-                y: -30
-                text: qsTr("File type:")
-                anchors.left: parent.left
-                anchors.top: parent.top
-                anchors.leftMargin: 0
-                anchors.topMargin: -30
-            }
-
-            Connections {
-                target: fileTypeComboBox
-                function onActivated() {
-                    workoutChart.fileType = fileTypeComboBox.currentIndex
-                    switch (fileTypeComboBox.currentIndex) {
-                    case 0:
-                        // Fit
-                        fileDialog.nameFilters = ["Fit files (*.fit)"]
-                        fileDialog.defaultSuffix = "fit"
-                        break
-                    case 1:
-                        // Plan
-                        fileDialog.nameFilters = ["Plan files (*.plan)"]
-                        fileDialog.defaultSuffix = "plan"
-                        break
-                    case 2:
-                        // Erg
-                        fileDialog.nameFilters = ["Erg files (*.erg)"]
-                        fileDialog.defaultSuffix = "erg"
-                        break
-                    case 3:
-                        // Mrc
-                        fileDialog.nameFilters = ["Mrc files (*.mrc)"]
-                        fileDialog.defaultSuffix = "mrc"
-                        break
-                    }
-                }
-            }
-        }
-
-        TextField {
-            id: fileNameText
-            height: 40
-            anchors.left: fileTypeComboBox.left
-            anchors.right: fileDialogButton.left
-            anchors.top: fileTypeComboBox.bottom
-            anchors.leftMargin: 0
-            anchors.rightMargin: 20
-            anchors.topMargin: 20
-            placeholderText: qsTr("File name")
-            text: workoutChart.fileName
-        }
-
-        FileDialog {
-            id: fileDialog
-            fileMode: FileDialog.SaveFile
-            nameFilters: ["Fit files (*.fit)"]
-            defaultSuffix: "fit"
-            Connections {
-                target: fileDialog
-                function onAccepted() {
-                    workoutChart.fileName = decodeURI(fileDialog.selectedFile)
-                }
-            }
-        }
-        Button {
-            id: fileDialogButton
-            width: 40
-            height: 40
-            text: "..."
-            anchors.right: parent.right
-            anchors.top: fileTypeComboBox.bottom
-            anchors.rightMargin: 20
-            anchors.topMargin: 20
-            bottomPadding: 0
-            rightPadding: 0
-            leftPadding: 0
-            topPadding: 0
-
-            Connections {
-                target: fileDialogButton
-                function onClicked() {
-                    fileDialog.open()
-                }
-            }
-        }
-    }
-    Frame {
         id: intervalFrame
         x: 50
-        height: 300
+        height: 450
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: fileFrame.bottom
         anchors.leftMargin: 20
         anchors.rightMargin: 20
         anchors.topMargin: 20
@@ -184,69 +65,95 @@ Rectangle {
             }
         }
 
+        TextField {
+            id: workoutName
+            height: 40
+            anchors.left: removeInterval.right
+            anchors.right: parent.right
+            anchors.top: workoutTypeComboBox.top
+            anchors.leftMargin: 50
+            anchors.rightMargin: 20
+            anchors.topMargin: 0
+            text: workoutChart.workoutName
+            placeholderText: "Workout Name"
+        }
+        TextField {
+            id: workoutNotes
+            anchors.left: workoutName.left
+            anchors.right: parent.right
+            anchors.top: addStep.top
+            anchors.bottom: repeatSpinBox.bottom
+            anchors.leftMargin: 0
+            anchors.rightMargin: 20
+            anchors.topMargin: 0
+            anchors.bottomMargin: 0
+            wrapMode: Text.WordWrap
+            text: workoutChart.workoutNotes
+            placeholderText: "Workout Notes"
+        }
         SpinBox {
-            id: fromSpinBox
+            id: ftpSpinBox
             width: 150
             height: 40
-            anchors.topMargin: 41
-            editable: true
-            enabled: false
-            value: workoutChart.from
-            anchors.left: removeStep.left
-            anchors.top: addStep.bottom
+            from: 50
+            to: 700
+            value: workoutChart.ftp
+            anchors.left: workoutTypeComboBox.left
+            anchors.top: workoutTypeComboBox.bottom
             anchors.leftMargin: 0
-
+            anchors.topMargin: 50
+            Layout.topMargin: 5
+            Layout.margins: 50
             Label {
-                id: fromLabel
+                id: ftpLabel
+                text: "FTP:"
                 y: -35
-                text: qsTr("From step nr:")
                 anchors.left: parent.left
                 anchors.top: parent.top
                 anchors.leftMargin: 0
                 anchors.topMargin: -20
-            }
-            from: 1
-            Connections {
-                target: fromSpinBox
-                function onValueModified() {
-                    workoutChart.from = fromSpinBox.value
-                }
             }
         }
-
         SpinBox {
-            id: repeatSpinBox
+            id: heartRateSpinBox
             width: 150
             height: 40
-            value: workoutChart.repeats
-            anchors.left: workoutTypeComboBox.left
-            anchors.leftMargin: 0
-            anchors.topMargin: 30
-            editable: true
-            x: 41
-            y: 221
-            from: 1
-
+            from: 60
+            to: 220
+            value: workoutChart.maxHeartRate
+            anchors.left: ftpSpinBox.right
+            anchors.top: ftpSpinBox.top
+            anchors.leftMargin: 100
+            anchors.topMargin: 0
             Label {
-                id: repeatLabel
-                y: -174
-                text: qsTr("Repeat steps times:")
+                id: heartRateLabel
+                y: -35
                 anchors.left: parent.left
                 anchors.top: parent.top
                 anchors.leftMargin: 0
                 anchors.topMargin: -20
+                text: qsTr("Max heart rate:")
             }
-            Connections {
-                target: repeatSpinBox
-                function onValueModified() {
-                    if (repeatSpinBox.value > 0) {
-                        fromSpinBox.enabled = true
-                        fromSpinBox.to = workoutChart.maxFrom
-                    } else {
-                        fromSpinBox.enabled = false
-                    }
-                    workoutChart.repeats = repeatSpinBox.value
-                }
+        }
+        SpinBox {
+            id: restingHeartRateSpinBox
+            width: 150
+            height: 40
+            from: 30
+            to: 220
+            value: workoutChart.restingHeartRate
+            anchors.left: workoutName.left
+            anchors.top: ftpSpinBox.top
+            anchors.leftMargin: 0
+            anchors.topMargin: 0
+            Label {
+                id: restingHeartRateLabel
+                y: -35
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.leftMargin: 0
+                anchors.topMargin: -20
+                text: qsTr("Resting heart rate:")
             }
         }
 
@@ -260,9 +167,9 @@ Rectangle {
             enabled: workoutChart.addIntervalEnabled
             text: qsTr("&Add interval")
             anchors.left: parent.left
-            anchors.top: workoutTypeComboBox.bottom
+            anchors.top: ftpSpinBox.bottom
             anchors.leftMargin: 20
-            anchors.topMargin: 20
+            anchors.topMargin: 50
             Connections {
                 target: addIntervalButton
                 function onClicked() {
@@ -292,68 +199,13 @@ Rectangle {
             }
         }
 
-        Dialog {
-            id: settingDialog
-            title: qsTr("Settings")
-            standardButtons: Dialog.Ok | Dialog.Cancel
-            ColumnLayout {
-                Label {
-                    id: ftpLabel
-                    text: "FTP:"
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                }
-                SpinBox {
-                    id: ftpSpinBox
-                    from: 50
-                    to: 700
-                    value: workoutChart.ftp
-                    Layout.topMargin: 5
-                    Layout.margins: 50
-                }
-                Label {
-                    id: heartRateLabel
-                    text: qsTr("Max heart rate:")
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                }
-                SpinBox {
-                    id: heartRateSpinBox
-                    Layout.topMargin: 5
-                    Layout.margins: 50
-                    from: 60
-                    to: 220
-                    value: workoutChart.maxHeartRate
-                }
-            }
-        }
-        Button {
-            id: settingsButton
-            y: 271
-            width: 40
-            height: 40
-            text: "..."
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.rightMargin: 20
-            anchors.topMargin: 10
-            bottomPadding: 0
-            rightPadding: 0
-            leftPadding: 0
-            topPadding: 0
-            Connections {
-                target: settingsButton
-                function onClicked() {
-                    settingDialog.open()
-                }
-            }
-        }
-
         SpinBox {
             id: intervalIntensitySpinBox
             width: 150
             height: 40
             value: workoutChart.intensity
             anchors.right: parent.right
-            anchors.top: repeatSpinBox.top
+            anchors.top: intervalTimeText.top
             anchors.rightMargin: 20
             anchors.topMargin: 0
             editable: true
@@ -380,10 +232,11 @@ Rectangle {
 
         TextField {
             id: intervalTimeText
+            width: 150
             height: 40
             text: workoutChart.duration
             anchors.left: workoutName.left
-            anchors.top: repeatSpinBox.top
+            anchors.top: addIntervalButton.top
             anchors.leftMargin: 0
             anchors.topMargin: 0
             horizontalAlignment: Text.AlignHCenter
@@ -421,7 +274,7 @@ Rectangle {
             anchors.left: parent.left
             anchors.top: addIntervalButton.bottom
             anchors.leftMargin: 20
-            anchors.topMargin: 20
+            anchors.topMargin: 50
             Connections {
                 target: addStep
                 function onClicked() {
@@ -447,32 +300,70 @@ Rectangle {
                 }
             }
         }
-
-        TextField {
-            id: workoutName
+        SpinBox {
+            id: fromSpinBox
+            width: 150
             height: 40
-            anchors.left: removeInterval.right
-            anchors.right: settingsButton.left
-            anchors.top: workoutTypeComboBox.top
-            anchors.leftMargin: 50
-            anchors.rightMargin: 50
             anchors.topMargin: 0
-            text: workoutChart.workoutName
-            placeholderText: "Workout Name"
-        }
-        TextField {
-            id: workoutNotes
-            anchors.left: workoutName.left
-            anchors.right: parent.right
-            anchors.top: addIntervalButton.top
-            anchors.bottom: addStep.bottom
+            editable: true
+            enabled: false
+            value: workoutChart.from
+            anchors.left: removeStep.left
+            anchors.top: repeatSpinBox.top
             anchors.leftMargin: 0
-            anchors.rightMargin: 20
-            anchors.topMargin: 0
-            anchors.bottomMargin: 0
-            wrapMode: Text.WordWrap
-            text: workoutChart.workoutNotes
-            placeholderText: "Workout Notes"
+
+            Label {
+                id: fromLabel
+                y: -35
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.leftMargin: 0
+                anchors.topMargin: -20
+                text: qsTr("From step nr:")
+            }
+            from: 1
+            Connections {
+                target: fromSpinBox
+                function onValueModified() {
+                    workoutChart.from = fromSpinBox.value
+                }
+            }
+        }
+
+        SpinBox {
+            id: repeatSpinBox
+            width: 150
+            height: 40
+            value: workoutChart.repeats
+            anchors.left: workoutTypeComboBox.left
+            anchors.top: addStep.bottom
+            anchors.leftMargin: 0
+            anchors.topMargin: 50
+            editable: true
+            x: 41
+            from: 1
+
+            Label {
+                id: repeatLabel
+                y: -174
+                text: qsTr("Repeat steps times:")
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.leftMargin: 0
+                anchors.topMargin: -20
+            }
+            Connections {
+                target: repeatSpinBox
+                function onValueModified() {
+                    if (repeatSpinBox.value > 0) {
+                        fromSpinBox.enabled = true
+                        fromSpinBox.to = workoutChart.maxFrom
+                    } else {
+                        fromSpinBox.enabled = false
+                    }
+                    workoutChart.repeats = repeatSpinBox.value
+                }
+            }
         }
     }
     Frame {
@@ -480,7 +371,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: intervalFrame.bottom
-        anchors.bottom: okButton.top
+        anchors.bottom: saveButton.top
         anchors.leftMargin: 20
         anchors.rightMargin: 20
         anchors.topMargin: 20
@@ -488,45 +379,56 @@ Rectangle {
 
         WorkoutChart {
             id: workoutChart
-            anchors.fill: parent
             maxDuration: 60
             maxIntensity: 500
-            IntervalListModel {
-                id: intervalList
-                objectName: "intervalList"
-                intervalList: [
-                    /*                     Interval {
-                        stepList: [
-                            Step {
-                                intensity: 200
-                                duration: 5.0
-                            }
-                        ]
-                    },
-                    Interval {
-                        repeat: 3
-                        from: 1
-                        stepList: [
-                            Step {
-                                intensity: 320
-                                duration: 5.0
-                            },
-                            Step {
-                                intensity: 50
-                                duration: 5.0
-                            }
-                        ]
-                    } */
-                ]
+            // IntervalListModel {
+            //     id: intervalList
+            //     objectName: "intervalList"
+            //     intervalList: [
+            //          Interval {
+            //             stepList: [
+            //                 Step {
+            //                     intensity: 200
+            //                     duration: 5.0
+            //                 }
+            //             ]
+            //         },
+            //         Interval {
+            //             repeat: 3
+            //             from: 1
+            //             stepList: [
+            //                 Step {
+            //                     intensity: 320
+            //                     duration: 5.0
+            //                 },
+            //                 Step {
+            //                     intensity: 50
+            //                     duration: 5.0
+            //                 }
+            //             ]
+            //         }
+            //     ]
+            // }
+        }
+    }
+    FileDialog {
+        id: fileDialog
+        fileMode: FileDialog.SaveFile
+        nameFilters: ["Fit files (*.fit)", "Plan files (*.plan)", "Erg files (*.erg)", "Mrc files (*.mrc)"]
+        defaultSuffix: "fit"
+        Connections {
+            target: fileDialog
+            function onAccepted() {
+                workoutChart.fileName = decodeURI(fileDialog.selectedFile)
             }
         }
     }
     RoundButton {
-        id: okButton
+        id: saveButton
         width: 150
         height: 40
         radius: 10
-        text: qsTr("&Ok")
+        text: qsTr("&Save As...")
         anchors.right: cancelButton.left
         anchors.bottom: parent.bottom
         anchors.rightMargin: 100
@@ -535,9 +437,9 @@ Rectangle {
         font.bold: false
         autoExclusive: false
         Connections {
-            target: okButton
+            target: saveButton
             function onClicked() {
-                workoutChart.onOkClicked()
+                fileDialog.open()
             }
         }
     }
@@ -546,7 +448,7 @@ Rectangle {
         width: 150
         height: 40
         radius: 10
-        text: qsTr("&Cancel")
+        text: qsTr("E&xit")
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.rightMargin: 100
@@ -556,15 +458,6 @@ Rectangle {
             function onClicked() {
                 Qt.quit()
             }
-        }
-    }
-
-    Connections {
-        id: connections
-        target: settingDialog
-        function onAccepted() {
-            workoutChart.ftp = ftpSpinBox.value
-            workoutChart.maxHeartRate = heartRateSpinBox.value
         }
     }
 }

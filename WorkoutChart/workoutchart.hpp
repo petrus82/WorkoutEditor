@@ -363,7 +363,6 @@ Q_NAMESPACE
     {
         Q_OBJECT
         QML_ELEMENT
-        Q_PROPERTY(uint fileType READ getFileType WRITE setFileType NOTIFY fileTypeChanged)
         Q_PROPERTY(QString fileName READ getFileName WRITE setFileName NOTIFY fileNameChanged)
         Q_PROPERTY(QString workoutName READ getWorkoutName WRITE setWorkoutName NOTIFY workoutNameChanged)
         Q_PROPERTY(QString workoutNotes READ getWorkoutNotes WRITE setWorkoutNotes NOTIFY workoutNotesChanged)
@@ -392,11 +391,6 @@ Q_NAMESPACE
         {
             QQuickPaintedItem::setAcceptedMouseButtons(Qt::LeftButton);
         }
-        uint getFileType() const {return static_cast<uint>(m_fileType);}
-        void setFileType(uint fileTypeIndex) {
-            m_fileType = static_cast<Workouts::FileType>(fileTypeIndex);
-            emit fileTypeChanged();
-        }
         QString getFileName () const {return m_fileName;}
         void setFileName(QString fileName) {
             m_fileName = QUrl(fileName).toLocalFile();
@@ -412,8 +406,6 @@ Q_NAMESPACE
             m_workoutNotes = workoutNotes;
             emit workoutNotesChanged();
         }
-        
-
         uint getWorkoutType () const {return static_cast<uint>(m_workoutType);}
         void setWorkoutType (uint intervalType) {
             m_workoutType = static_cast<Workouts::WorkoutType>(intervalType);
@@ -585,14 +577,13 @@ Q_NAMESPACE
             QQuickPaintedItem::update();
         }
         void onSelectionFinished();
-        void onOkClicked();
+        void onFileSave();
     signals:
         void intervalClicked(Interval* interval, Step* step);
         void selectionPainted();
         void ftpChanged();
         void restingHeartRateChanged();
         void maxHeartRateChanged();
-        void fileTypeChanged();
         void fileNameChanged();
         void workoutNameChanged();
         void workoutNotesChanged();
@@ -658,7 +649,6 @@ Q_NAMESPACE
         PaintExtent m_paintExtent{};
         static uint constexpr margin = 5;
         std::unique_ptr<QColor> m_backgroundColor{std::make_unique<QColor>(Qt::lightGray)};
-        Workouts::FileType m_fileType {};
         QString m_fileName {};
         QString m_workoutName {};
         QString m_workoutNotes {};

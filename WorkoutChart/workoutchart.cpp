@@ -512,42 +512,41 @@ namespace WORKOUT_CHART {
         m_activeSelection.interval->setFrom(getFrom());
     }
 
-    void WorkoutChart::onOkClicked() {
+    void WorkoutChart::onFileSave() {
         using namespace Workouts;
         std::unique_ptr<Workout> workout;
-        switch (m_fileType) {
-            case FileType::Plan:
-                
-                workout = std::make_unique<PlanWorkout>(
-                    m_fileName.toStdString(), 
-                    m_workoutName.toStdString(), 
-                    m_workoutNotes.toStdString()
-                );
-                break;
-            case FileType::Fit:
-                workout = std::make_unique<FitWorkout>(
-                    m_fileName.toStdString(), 
-                    m_workoutName.toStdString(), 
-                    m_workoutNotes.toStdString()
-                );
-                break;
-            case FileType::Erg:
-                workout = std::make_unique<ErgWorkout>(
-                    m_fileName.toStdString(), 
-                    m_workoutName.toStdString(), 
-                    m_workoutNotes.toStdString()
-                );
-                static_cast<ErgWorkout*>(workout.get())->setFtp(m_ftp);
-                break;
-            case FileType::Mrc:
-                workout = std::make_unique<MrcWorkout>(
-                    m_fileName.toStdString(), 
-                    m_workoutName.toStdString(), 
-                    m_workoutNotes.toStdString()
-                );
-                break;
-            default:
-                throw std::runtime_error ("No such filetype.");
+
+        if (m_fileName.endsWith(".plan")) {
+            workout = std::make_unique<PlanWorkout>(
+                m_fileName.toStdString(), 
+                m_workoutName.toStdString(), 
+                m_workoutNotes.toStdString()
+            );
+        }
+        else if (m_fileName.endsWith(".fit")) {
+            workout = std::make_unique<FitWorkout>(
+                m_fileName.toStdString(), 
+                m_workoutName.toStdString(), 
+                m_workoutNotes.toStdString()
+            );
+        }
+        else if (m_fileName.endsWith(".erg")) {
+            workout = std::make_unique<ErgWorkout>(
+                m_fileName.toStdString(), 
+                m_workoutName.toStdString(), 
+                m_workoutNotes.toStdString()
+            );
+            static_cast<ErgWorkout*>(workout.get())->setFtp(m_ftp);
+        }
+        else if (m_fileName.endsWith("*.mrc")) {
+            workout = std::make_unique<MrcWorkout>(
+                m_fileName.toStdString(), 
+                m_workoutName.toStdString(), 
+                m_workoutNotes.toStdString()
+            );
+        }
+        else {
+            throw std::runtime_error ("Could not identify filetype.");
         }
 
         for (const auto& interval : m_intervals->intervals()) {
