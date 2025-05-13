@@ -9,22 +9,20 @@ arch=('i686' 'x86_64')
 depends=('qt6-base' 'qt6-declarative')
 makedepens=('cmake')
 provides=(workoutchart)
-source=("$pkgname-$pkgver.tar.gz::$url/releases/v$pkgver.tar.gz"
-        "$pkgname-$pkgver.tar.gz.asc::$url/releases/v$pkgver.tar.gz.asc")
-sha256sums=(''
-            'SKIP')
+source=("workoutchart::git+$url")
+sha256sums=('SKIP')
 
 build() {
-  cd "$_pkgname-$pkgver"
-  mkdir build && cd build
-  cmake \
-    -S.. \
+  echo $PWD
+  cd WorkoutEditor-$pkgver
+  mkdir -p build && cd build
+  cmake .. \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
-    -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
+    -DSHARE_INSTALL_PREFIX:PATH=/usr/share
   cmake --build . --target all
 }
 
 package() {
-  cd "$_pkgname-$pkgver/build"
+  cd WorkoutEditor-$pkgver/build
   cmake --install . --prefix="$pkgdir/usr"
 }
