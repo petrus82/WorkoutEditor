@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.30)
 
 set(LIBRARY_NAME "WorkoutLib")
+set(GARMIN_DIR "${CMAKE_BINARY_DIR}/Garmin SDK")
 set(LIBRARY_TYPE STATIC)
 
 file (GLOB SOURCE_FILES
@@ -17,24 +18,27 @@ file (GLOB SOURCE_FILES
 )
 
 # Check if the Garmin SDK directory exists
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/Garmin SDK/cpp")
-  file(DOWNLOAD https://developer.garmin.com/downloads/fit/sdk/FitSDKRelease_21.158.00.zip
-       "${CMAKE_BINARY_DIR}/FitSDKRelease_21.158.00.zip"
-      )
+include(FetchContent)
 
-  file(ARCHIVE_EXTRACT INPUT "${CMAKE_BINARY_DIR}/FitSDKRelease_21.158.00.zip"
-                         DESTINATION "${PROJECT_SOURCE_DIR}/Garmin\ SDK")
-endif()
+FetchContent_Declare(
+  GarminSdk
+  URL https://developer.garmin.com/downloads/fit/sdk/FitSDKRelease_21.158.00.zip
+  SOURCE_DIR "${GARMIN_DIR}"
+)
 
-file(GLOB GarminSources "${PROJECT_SOURCE_DIR}/Garmin\ SDK/cpp/*.cpp")
-add_library(GarminSdk ${GarminSources})
+FetchContent_MakeAvailable(GarminSdk)
+FetchContent_GetProperties(GarminSdk SOURCE_DIR GarminSdk_SOURCE_DIR)
+message("Garmin Dir: ${GarminSdk_SOURCE_DIR}")
+file(GLOB GarminSources "${GarminSdk_SOURCE_DIR}/cpp/*.cpp")
+
+add_library(GarminSdk STATIC ${GarminSources})
 
 add_library(${LIBRARY_NAME} ${LIBRARY_TYPE}
   ${SOURCE_FILES}
 )
 
 target_include_directories(${LIBRARY_NAME} PUBLIC
-  ${PROJECT_SOURCE_DIR}/Garmin\ SDK/cpp
+  "${GarminSdk_SOURCE_DIR}/cpp"
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries(${LIBRARY_NAME} PUBLIC

@@ -5,6 +5,8 @@ set(EXECUTABLE_NAME "workoutchart")
 set(PLUGIN_NAME "WorkoutChartModule")
 set(QML_NAME "WorkoutChart_qml_module")
 set(TEST_NAME "workoutcharttests")
+set(GARMIN_DIR "${CMAKE_BINARY_DIR}/Garmin SDK/cpp/")
+message("Garmin Dir: ${GARMIN_DIR}")
 
 # Qt settings
 set(CMAKE_AUTOUIC ON)
@@ -66,15 +68,16 @@ target_include_directories(${QML_NAME} PUBLIC
     ${Qt6Core_INCLUDE_DIRS}
     ${Qt6Gui_INCLUDE_DIRS}
     "${CMAKE_SOURCE_DIR}/WorkoutLib"
-    "${CMAKE_SOURCE_DIR}/WorkoutLib/Garmin SDK/cpp"
+    "${GARMIN_DIR}"
 )
 target_include_directories(${PLUGIN_NAME} PUBLIC
     ${Qt6Gui_INCLUDE_DIRS}
     "${CMAKE_SOURCE_DIR}/WorkoutLib"
-    "${CMAKE_SOURCE_DIR}/WorkoutLib/Garmin SDK/cpp"
+    "${GARMIN_DIR}"
 )
+
 target_include_directories(${EXECUTABLE_NAME} PUBLIC
-  "${CMAKE_SOURCE_DIR}/WorkoutLib/Garmin SDK/cpp"
+    "${GARMIN_DIR}"
 )
 
 link_directories(${CMAKE_BINARY_DIR})
