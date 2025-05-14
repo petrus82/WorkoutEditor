@@ -1,3 +1,4 @@
+# Maintainer: Simon-Friedrich Böttger <email @ simonboettger.de>
 pkgname=workoutchart
 _pkgname=WorkoutChart
 pkgver=0.0.1
@@ -7,14 +8,14 @@ url="https://github.com/petrus82/WorkoutEditor"
 license=('GPL3')
 arch=('i686' 'x86_64')
 depends=('qt6-base' 'qt6-declarative')
-makedepens=('cmake')
+makedepends=('cmake', 'git')
 provides=(workoutchart)
 source=("workoutchart::git+$url")
 sha256sums=('SKIP')
 
 build() {
-  echo $PWD
-  cd WorkoutEditor-$pkgver
+  echo "$pkgname-$pkgver"
+  cd "$pkgname"
   mkdir -p build && cd build
   cmake .. \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
@@ -23,6 +24,6 @@ build() {
 }
 
 package() {
-  cd WorkoutEditor-$pkgver/build
+  cd "$pkgname/build"
   cmake --install . --prefix="$pkgdir/usr"
 }
