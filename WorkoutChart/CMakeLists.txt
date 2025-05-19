@@ -20,7 +20,6 @@ endif()
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Quick Qml Test)
 qt6_standard_project_setup()
-qt6_policy(SET QTP0001 NEW)
 
 file (GLOB SOURCE_FILES
   workoutchart.cpp
