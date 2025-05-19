@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-option(QtTests "Enable Qt Tests" ON)
+option(QtTests "Enable Qt Tests" OFF)
 set(EXECUTABLE_NAME "workoutchart")
 set(PLUGIN_NAME "WorkoutChartModule")
 set(QML_NAME "WorkoutChart_qml_module")
