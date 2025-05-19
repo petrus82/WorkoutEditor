@@ -14,9 +14,13 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(QT_QML_GENERATE_QMLLS_INI ON)
 
-find_package(Qt6 COMPONENTS Core Gui Widgets Quick Qml Test REQUIRED)
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "/Zc:__cplusplus")
+endif()
+
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Quick Qml Test)
 qt6_standard_project_setup()
-qt_policy(SET QTP0001 NEW)
+qt6_policy(SET QTP0001 NEW)
 
 file (GLOB SOURCE_FILES
   workoutchart.cpp
